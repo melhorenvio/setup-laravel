@@ -22,6 +22,7 @@ runs:
       if: ${{ inputs.cache-composer }}
       id: composer-cache
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+      shell: bash
 
     - name: Cache dependencies
       if: ${{ inputs.cache-composer }}
@@ -32,4 +33,4 @@ runs:
         restore-keys: ${{ runner.os }}-composer-
 
     - run: composer install --prefer-dist
-    - run: php artisan key:generate --env=${{ inputs.env }}
+      shell: bash
