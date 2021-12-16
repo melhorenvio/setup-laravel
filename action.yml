@@ -1,0 +1,35 @@
+name: 'Setup Laravel'
+description: 'Custom Laravel setup'
+inputs:
+  php-version:
+    required: false
+    default: '8.0'
+  cache-composer:
+    required: false
+    default: true
+  env:
+    required: false
+    default: 'testing'
+
+runs:
+  using: "composite"
+  steps:
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ inputs.php-version }}
+
+    - name: Get composer cache directory
+      if: ${{ inputs.cache-composer }}
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      if: ${{ inputs.cache-composer }}
+      uses: actions/cache@v2
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - run: composer install --prefer-dist
+    - run: php artisan key:generate --env=${{ inputs.env }}
