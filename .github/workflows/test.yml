@@ -8,6 +8,17 @@ on:
 jobs:
   test-composite-action:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:5.7
+        env:
+            MYSQL_ALLOW_EMPTY_PASSWORD: yes
+            MYSQL_PASSWORD: root
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: setup_test_db
+        ports:
+            - 3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
     steps:
       - uses: actions/checkout@v2
 
@@ -15,6 +26,7 @@ jobs:
 
       - uses: melhor-envio/setup-php@v1
         with:
-          php-version: '8.0'
+          php-version: 8.0
           cache-composer: true
-          env: 'testing'
+          env: testing
+          mysql-database: setup_test_db

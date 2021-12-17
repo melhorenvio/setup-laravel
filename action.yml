@@ -1,18 +1,26 @@
 name: 'Setup Laravel'
-description: 'Custom Laravel setup'
+description: 'Custom setup action for Laravel applications'
 inputs:
   php-version:
     required: false
-    default: '8.0'
+    default: 8.0
   cache-composer:
     required: false
     default: true
   env:
     required: false
-    default: 'testing'
+    default: testing
+  setup-node:
+    required: false
+    default: false
+  cache-node:
+    required: false
+    default: true
+  mysql-database:
+    required: false
 
 runs:
-  using: "composite"
+  using: composite
   steps:
     - uses: shivammathur/setup-php@v2
       with:
@@ -34,3 +42,12 @@ runs:
 
     - run: composer install --prefer-dist
       shell: bash
+
+    - name: Start MySQL database
+      shell: bash
+      env:
+        CREATE_DATABASE_COMMAND: "CREATE DATABASE ${{ inputs.mysql-database }};"
+      if: inputs.mysql-database
+      run: |
+        sudo systemctl start mysql
+        mysql -uroot -proot --execute="${{ env.CREATE_DATABASE_COMMAND }}"
