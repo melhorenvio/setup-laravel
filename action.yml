@@ -10,14 +10,12 @@ inputs:
   env:
     required: false
     default: testing
-  setup-node:
-    required: false
-    default: false
-  cache-node:
-    required: false
-    default: true
   mysql-database:
     required: false
+  node-version:
+    required: true
+  node-package-manager:
+    required: true
 
 runs:
   using: composite
@@ -27,12 +25,12 @@ runs:
         php-version: ${{ inputs.php-version }}
 
     - name: Get composer cache directory
-      if: ${{ inputs.cache-composer }}
       id: composer-cache
-      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
       shell: bash
+      if: ${{ inputs.cache-composer }}
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
 
-    - name: Cache dependencies
+    - name: Cache composer dependencies
       if: ${{ inputs.cache-composer }}
       uses: actions/cache@v2
       with:
@@ -40,8 +38,20 @@ runs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
         restore-keys: ${{ runner.os }}-composer-
 
-    - run: composer install --prefer-dist
+    - name: Install composer dependencies
       shell: bash
+      run: composer install --prefer-dist
+
+    - uses: actions/setup-node@v2
+      if: inputs.node-package-manager
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: ${{ inputs.node-package-manager }}
+
+    - name: Install node dependencies
+      shell: bash
+      if: inputs.node-package-manager
+      run: ${{ inputs.node-package-manager }} install
 
     - name: Start MySQL database
       shell: bash

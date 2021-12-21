@@ -24,9 +24,11 @@ jobs:
 
       - run: composer init -n --name "melhorenvio/setup-php"
 
-      - uses: melhor-envio/setup-php@v1
+      - uses: melhor-envio/setup-laravel@v1
         with:
           php-version: 8.0
           cache-composer: true
           env: testing
           mysql-database: setup_test_db
+          node-version: 16
+          node-package-manager: npm
