@@ -30,5 +30,3 @@ jobs:
           cache-composer: true
           env: testing
           mysql-database: setup_test_db
-          node-version: 16
-          node-package-manager: npm
